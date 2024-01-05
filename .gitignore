@@ -42,6 +42,9 @@
 *.idb
 *.pdb
 
+# Testing header
+test/unittest.h
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd
