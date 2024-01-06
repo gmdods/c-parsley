@@ -4,10 +4,11 @@
 #include "macros.h"
 #include "memory.h"
 
-enum token_type load(struct parser * parser) {
+error_t load(struct parser * parser) {
 	struct token token = lex(&parser->lexer);
 	parser->token = token;
-	return token.type;
+	if (token.type == TOKEN_BAD) return (error_t){ERROR_BAD};
+	return no_error;
 }
 
 error_t commit(struct parser * parser) {
@@ -16,7 +17,7 @@ error_t commit(struct parser * parser) {
 	if (!parser->arena.ptr) return (error_t){ERROR_ALLOC};
 	array_cast(struct node, parser->arena)[index] =
 	    (struct node){parser->parent, parser->token};
-	load(parser);
+	or_return(load(parser), error);
 	return no_error;
 }
 
@@ -41,8 +42,8 @@ error_t parse_expression(struct parser * parser, char8_t precedence) {
 		case '(':
 			or_return(derive(parser), error);
 			or_return(parse_expression(parser, 0), error);
-			if (parser->token.type != ')') return no_error;
-			load(parser);
+			or_return(expect(parser, ')'), error);
+			or_return(load(parser), error);
 			break_case;
 		case '!' or_ case '~': level += 1; fallthrough;
 
@@ -88,7 +89,7 @@ error_t parse_statement(struct parser * parser) {
 	}
 	or_return(parse_expression(parser, 0), error);
 	or_return(expect(parser, ';'), error);
-	load(parser);
+	or_return(load(parser), error);
 	return no_error;
 }
 
@@ -97,15 +98,16 @@ error_t parse_if(struct parser * parser) {
 	or_return(derive(parser), error);
 	size_t parent = parser->parent;
 	or_return(expect(parser, '('), error);
-	load(parser);
+	or_return(load(parser), error);
 	or_return(parse_expression(parser, 0), error);
 	or_return(expect(parser, ')'), error);
 	parser->parent = parent;
-	if (load(parser) == '{') {
+	or_return(load(parser), error);
+	if (parser->token.type == '{') {
 		or_return(derive(parser), error);
 		or_return(parse_scope(parser), error);
 		or_return(expect(parser, '}'), error);
-		load(parser);
+		or_return(load(parser), error);
 	} else
 		or_return(parse_expression(parser, 0), error);
 
@@ -115,7 +117,7 @@ error_t parse_if(struct parser * parser) {
 			or_return(derive(parser), error);
 			or_return(parse_scope(parser), error);
 			or_return(expect(parser, '}'), error);
-			load(parser);
+			or_return(load(parser), error);
 		} else
 			return parse_expression(parser, 0);
 	}
@@ -123,9 +125,9 @@ error_t parse_if(struct parser * parser) {
 }
 
 error_t parse_scope(struct parser * parser) {
-	load(parser);
-	size_t parent = parser->index;
-	for (error_t error = no_error; (parser->parent = parent, 1);)
+	error_t error = no_error;
+	or_return(load(parser), error);
+	for (size_t parent = parser->index; (parser->parent = parent, 1);)
 		switch ((char8_t) parser->token.type) {
 		case tokenof(KEYWORD_LET):
 			or_return(parse_statement(parser), error);

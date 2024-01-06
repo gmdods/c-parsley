@@ -37,7 +37,7 @@ struct parser {
 
 error_t parse(struct parser *);
 
-enum token_type load(struct parser *);
+error_t load(struct parser *);
 error_t commit(struct parser *);
 error_t derive(struct parser *);
 
