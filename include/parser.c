@@ -12,6 +12,7 @@ error_t load(struct parser * parser) {
 }
 
 error_t commit(struct parser * parser) {
+	error_t error = no_error;
 	size_t index = parser->index++;
 	upalloc(&parser->arena, sizeof(struct node) * (1 + index));
 	if (!parser->arena.ptr) return (error_t){ERROR_ALLOC};
@@ -25,7 +26,7 @@ error_t derive(struct parser * parser) {
 	error_t error = no_error;
 	or_return(commit(parser), error);
 	parser->parent = parser->index;
-	return error;
+	return no_error;
 }
 
 error_t expect(struct parser * parser, char8_t expected) {
@@ -79,21 +80,25 @@ error_t parse_expression(struct parser * parser, char8_t precedence) {
 
 error_t parse_statement(struct parser * parser) {
 	error_t error = no_error;
-	if (parser->token.type == tokenof(KEYWORD_LET)) {
+	if (parser->token.type == tokenof(KEYWORD_RETURN)) {
 		or_return(derive(parser), error);
-		size_t parent = parser->parent;
+		or_return(parse_expression(parser, 0), error);
+	} else if (parser->token.type == tokenof(KEYWORD_BREAK)) {
+		or_return(derive(parser), error);
+	} else if (parser->token.type == tokenof(KEYWORD_LET)) {
+		or_return(derive(parser), error);
 		or_return(expect(parser, TOKEN_LABEL), error);
 		or_return(commit(parser), error);
 		or_return(expect(parser, '='), error);
 		or_return(commit(parser), error);
+		or_return(parse_expression(parser, 0), error);
 	}
-	or_return(parse_expression(parser, 0), error);
 	or_return(expect(parser, ';'), error);
 	or_return(load(parser), error);
 	return no_error;
 }
 
-error_t parse_if(struct parser * parser) {
+error_t parse_pseudo(struct parser * parser) {
 	error_t error = no_error;
 	or_return(derive(parser), error);
 	size_t parent = parser->parent;
@@ -103,22 +108,22 @@ error_t parse_if(struct parser * parser) {
 	or_return(expect(parser, ')'), error);
 	parser->parent = parent;
 	or_return(load(parser), error);
-	if (parser->token.type == '{') {
-		or_return(derive(parser), error);
+	return no_error;
+}
+
+error_t parse_if(struct parser * parser) {
+	error_t error = no_error;
+	or_return(parse_pseudo(parser), error);
+	if (parser->token.type == '{')
 		or_return(parse_scope(parser), error);
-		or_return(expect(parser, '}'), error);
-		or_return(load(parser), error);
-	} else
+	else
 		or_return(parse_expression(parser, 0), error);
 
 	if (parser->token.type == tokenof(KEYWORD_ELSE)) {
 		or_return(derive(parser), error);
-		if (parser->token.type == '{') {
-			or_return(derive(parser), error);
+		if (parser->token.type == '{')
 			or_return(parse_scope(parser), error);
-			or_return(expect(parser, '}'), error);
-			or_return(load(parser), error);
-		} else
+		else
 			return parse_expression(parser, 0);
 	}
 	return no_error;
@@ -126,14 +131,33 @@ error_t parse_if(struct parser * parser) {
 
 error_t parse_scope(struct parser * parser) {
 	error_t error = no_error;
+	or_return(expect(parser, '{'), error);
+	or_return(derive(parser), error);
+	or_return(parse_sequence(parser), error);
+	or_return(expect(parser, '}'), error);
 	or_return(load(parser), error);
+	return no_error;
+}
+
+error_t parse_sequence(struct parser * parser) {
+	error_t error = no_error;
 	for (size_t parent = parser->index; (parser->parent = parent, 1);)
 		switch ((char8_t) parser->token.type) {
-		case tokenof(KEYWORD_LET):
-			or_return(parse_statement(parser), error);
+		case tokenof(KEYWORD_WHILE):
+			or_return(parse_pseudo(parser), error);
+			or_return(parse_scope(parser), error);
 			break_case;
 		case tokenof(KEYWORD_IF):
 			or_return(parse_if(parser), error);
+			break_case;
+		case tokenof(KEYWORD_RETURN):
+		case tokenof(KEYWORD_BREAK):
+		case tokenof(KEYWORD_LET):
+			or_return(parse_statement(parser), error);
+			break_case;
+		case tokenof(KEYWORD_LOOP):
+			or_return(derive(parser), error);
+			or_return(parse_scope(parser), error);
 			break_case;
 		case TOKEN_LABEL:
 			or_return(parse_expression(parser, 0), error);
@@ -144,4 +168,8 @@ error_t parse_scope(struct parser * parser) {
 		}
 }
 
-error_t parse(struct parser * parser) { return parse_scope(parser); }
+error_t parse(struct parser * parser) {
+	error_t error = no_error;
+	or_return(load(parser), error);
+	return parse_sequence(parser);
+}

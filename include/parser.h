@@ -42,8 +42,10 @@ error_t commit(struct parser *);
 error_t derive(struct parser *);
 
 error_t parse_scope(struct parser *);
+error_t parse_sequence(struct parser *);
 error_t parse_expression(struct parser *, char8_t);
 error_t parse_statement(struct parser *);
+error_t parse_pseudo(struct parser *);
 error_t parse_if(struct parser *);
 
 #endif // !PARSER_H

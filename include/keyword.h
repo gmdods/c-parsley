@@ -6,9 +6,15 @@
 #include <string.h>
 
 enum keywords {
-	KEYWORD_LET,
+	KEYWORD_RETURN,
 	KEYWORD_IF,
 	KEYWORD_ELSE,
+	KEYWORD_WHILE,
+	KEYWORD_BREAK,
+	// Not C
+	KEYWORD_LET,
+	KEYWORD_LOOP,
+	// END
 	KEYWORD_NONE,
 };
 
@@ -21,9 +27,14 @@ struct string {
 	{ .ptr = cast(const char8_t *, str), .span = sizeof(str) - 1 }
 
 static struct string keywords[] = {
-    [KEYWORD_LET] = string_literal("let"),
+    [KEYWORD_RETURN] = string_literal("return"),
     [KEYWORD_IF] = string_literal("if"),
     [KEYWORD_ELSE] = string_literal("else"),
+    [KEYWORD_WHILE] = string_literal("while"),
+    [KEYWORD_BREAK] = string_literal("break"),
+
+    [KEYWORD_LET] = string_literal("let"),
+    [KEYWORD_LOOP] = string_literal("loop"),
 };
 
 #endif // !KEYWORD_H

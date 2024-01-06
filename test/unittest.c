@@ -89,7 +89,7 @@ unittest("parser") {
 	struct parser parser = {.lexer = (struct lexer){.ptr = str},
 				.arena = alloc(256U * sizeof(struct node))};
 	error_t error = parse(&parser);
-	ensure(error == ERROR_NONE || error == ERROR_EOF);
+	ensure(error == ERROR_EOF);
 
 	for (size_t index = 0; index != sizeof(expected) / sizeof(struct node);
 	     ++index) {
@@ -100,6 +100,20 @@ unittest("parser") {
 		    ensure(expect.token.span == node.token.span),
 		    ensure(expect.index == node.index);
 	}
+
+	dealloc(&parser.arena);
+}
+
+unittest("parser errors") {
+	static const char8_t * issue =
+	    cast(const char8_t *, "while (1) { break; } == 1");
+
+	struct parser parser = {.lexer = (struct lexer){.ptr = issue},
+				.arena = alloc(256U * sizeof(struct node))};
+	error_t error = parse(&parser);
+	ensure(error == ERROR_BAD), ensure(parser.token.type == digraph('=')),
+	    ensure(parser.token.span == 2),
+	    ensure(parser.token.ptr == issue + 21);
 
 	dealloc(&parser.arena);
 }
