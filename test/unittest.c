@@ -13,7 +13,7 @@ static const char8_t * str =
     cast(const char8_t *, "let num = 30;\n"
 			  "let letter = 'a';\n"
 			  "if (num <= 32)\n"
-			  "\tnum + (letter - 'a') * 3\n"
+			  "then num + (letter - 'a') * 3\n"
 			  "else 30");
 
 unittest("lexer") {
@@ -34,17 +34,18 @@ unittest("lexer") {
 	    {digraph('<'), str + 40, 2},
 	    {TOKEN_DECIMAL, str + 43, 2},
 	    {')', str + 45, 1},
-	    {TOKEN_LABEL, str + 48, 3},
-	    {'+', str + 52, 1},
-	    {'(', str + 54, 1},
-	    {TOKEN_LABEL, str + 55, 6},
-	    {'-', str + 62, 1},
-	    {'\'', str + 65, 1},
-	    {')', str + 67, 1},
-	    {'*', str + 69, 1},
-	    {TOKEN_DECIMAL, str + 71, 1},
-	    {tokenof(KEYWORD_ELSE), str + 73, 4},
-	    {TOKEN_DECIMAL, str + 78, 2},
+	    {tokenof(KEYWORD_THEN), str + 47, 4},
+	    {TOKEN_LABEL, str + 52, 3},
+	    {'+', str + 56, 1},
+	    {'(', str + 58, 1},
+	    {TOKEN_LABEL, str + 59, 6},
+	    {'-', str + 66, 1},
+	    {'\'', str + 69, 1},
+	    {')', str + 71, 1},
+	    {'*', str + 73, 1},
+	    {TOKEN_DECIMAL, str + 75, 1},
+	    {tokenof(KEYWORD_ELSE), str + 77, 4},
+	    {TOKEN_DECIMAL, str + 82, 2},
 	};
 
 	struct lexer lexer = {.ptr = str};
@@ -52,7 +53,7 @@ unittest("lexer") {
 	for (size_t index = 0; (token = lex(&lexer)).type != TOKEN_EOF;
 	     ++index) {
 		struct token expect_token = expected[index];
-		ensure(expect_token.type == token.type),
+		    ensure(expect_token.type == token.type),
 		    ensure(expect_token.ptr == token.ptr),
 		    ensure(expect_token.span == token.span);
 	}
@@ -73,16 +74,17 @@ unittest("parser") {
 	    {9, {TOKEN_LABEL, str + 36, 3}},
 	    {9, {digraph('<'), str + 40, 2}},
 	    {11, {TOKEN_DECIMAL, str + 43, 2}},
-	    {9, {TOKEN_LABEL, str + 48, 3}},
-	    {9, {'+', str + 52, 1}},
-	    {14, {'(', str + 54, 1}},
-	    {15, {TOKEN_LABEL, str + 55, 6}},
-	    {15, {'-', str + 62, 1}},
-	    {17, {'\'', str + 65, 1}},
-	    {17, {'*', str + 69, 1}},
-	    {19, {TOKEN_DECIMAL, str + 71, 1}},
-	    {19, {tokenof(KEYWORD_ELSE), str + 73, 4}},
-	    {19, {TOKEN_DECIMAL, str + 78, 2}},
+	    {9, {tokenof(KEYWORD_THEN), str + 47, 4}},
+	    {13, {TOKEN_LABEL, str + 52, 3}},
+	    {13, {'+', str + 56, 1}},
+	    {15, {'(', str + 58, 1}},
+	    {16, {TOKEN_LABEL, str + 59, 6}},
+	    {16, {'-', str + 66, 1}},
+	    {18, {'\'', str + 69, 1}},
+	    {18, {'*', str + 73, 1}},
+	    {20, {TOKEN_DECIMAL, str + 75, 1}},
+	    {9, {tokenof(KEYWORD_ELSE), str + 77, 4}},
+	    {22, {TOKEN_DECIMAL, str + 82, 2}},
 	};
 
 	struct node node = {0};

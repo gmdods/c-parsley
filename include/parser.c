@@ -69,10 +69,10 @@ error_t parse_expression(struct parser * parser, char8_t precedence) {
 			or_return(parse_expression(parser, level), error);
 			break_case;
 
+		case tokenof(KEYWORD_THEN):
+		case tokenof(KEYWORD_ELSE): return no_error;
+
 		case '_':
-			if (parser->token.type == tokenof(KEYWORD_ELSE))
-				return no_error;
-			fallthrough;
 		default: or_return(commit(parser), error); break_case;
 		case TOKEN_EOF: return ERROR_EOF;
 		}
@@ -113,19 +113,26 @@ error_t parse_pseudo(struct parser * parser) {
 
 error_t parse_if(struct parser * parser) {
 	error_t error = no_error;
+	size_t parent = parser->parent;
+	size_t index = parser->index + 1;
 	or_return(parse_pseudo(parser), error);
-	if (parser->token.type == '{')
+	if (parser->token.type == '{') {
 		or_return(parse_scope(parser), error);
-	else
-		or_return(parse_expression(parser, 0), error);
-
-	if (parser->token.type == tokenof(KEYWORD_ELSE)) {
-		or_return(derive(parser), error);
-		if (parser->token.type == '{')
+		parser->parent = index;
+		if (parser->token.type == tokenof(KEYWORD_ELSE)) {
+			or_return(derive(parser), error);
 			or_return(parse_scope(parser), error);
-		else
+		}
+	} else if (parser->token.type == tokenof(KEYWORD_THEN)) {
+		or_return(derive(parser), error);
+		or_return(parse_expression(parser, 0), error);
+		parser->parent = index;
+		if (parser->token.type == tokenof(KEYWORD_ELSE)) {
+			or_return(derive(parser), error);
 			return parse_expression(parser, 0);
-	}
+		}
+	} else
+		return (error_t){ERROR_EXPECT};
 	return no_error;
 }
 

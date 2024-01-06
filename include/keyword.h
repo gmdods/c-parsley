@@ -8,6 +8,7 @@
 enum keywords {
 	KEYWORD_RETURN,
 	KEYWORD_IF,
+	KEYWORD_THEN,
 	KEYWORD_ELSE,
 	KEYWORD_WHILE,
 	KEYWORD_BREAK,
@@ -29,6 +30,7 @@ struct string {
 static struct string keywords[] = {
     [KEYWORD_RETURN] = string_literal("return"),
     [KEYWORD_IF] = string_literal("if"),
+    [KEYWORD_THEN] = string_literal("then"),
     [KEYWORD_ELSE] = string_literal("else"),
     [KEYWORD_WHILE] = string_literal("while"),
     [KEYWORD_BREAK] = string_literal("break"),
