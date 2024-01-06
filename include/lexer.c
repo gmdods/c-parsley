@@ -1,7 +1,4 @@
 #include "lexer.h"
-#include "glyph.h"
-#include "keyword.h"
-#include "macros.h"
 
 struct token reserved(struct token token) {
 	for (size_t key = 0; key != KEYWORD_NONE; ++key)
@@ -79,7 +76,6 @@ struct token lex(struct lexer * lex) {
 		case '*' or_ case '^':
 		case '&' or_ case '|':
 		case '~':
-
 
 		case '[' or_ case '{' or_ case '(':
 		case ']' or_ case '}' or_ case ')':

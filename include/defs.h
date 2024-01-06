@@ -3,6 +3,7 @@
 
 #include <ctype.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <uchar.h>
 
 typedef unsigned char char8_t;
@@ -19,5 +20,7 @@ inline bool is_open(char8_t c) { return (c == '(') | (c == '[') | (c == '{'); }
 inline bool is_close(char8_t c) { return (c == ')') | (c == ']') | (c == '}'); }
 inline bool is_bracket(char8_t c) { return is_open(c) | is_close(c); }
 inline bool is_mark(char8_t c) { return is_point(c) | is_bracket(c); }
+
+typedef uint32_t index_t;
 
 #endif // !GLYPH_H

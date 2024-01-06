@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wpedantic -Wextra \
 	 -march=native -std=c11
 
 FILES = ../include/lexer.c ../include/parser.c
-DEPS  = ../include/macros.h ../include/glyph.h ../include/keyword.h \
+DEPS  = ../include/macros.h ../include/defs.h ../include/keyword.h \
 	../include/memory.h ../include/lexer.h ../include/parser.h \
 	unittest.c
 

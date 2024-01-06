@@ -1,7 +1,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "glyph.h"
+#include "defs.h"
 #include "keyword.h"
 
 enum token_type /* : char8_t */ {

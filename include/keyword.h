@@ -1,7 +1,7 @@
 #ifndef KEYWORD_H
 #define KEYWORD_H
 
-#include "glyph.h"
+#include "defs.h"
 #include "macros.h"
 #include <string.h>
 

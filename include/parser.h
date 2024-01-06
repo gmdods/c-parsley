@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "glyph.h"
+#include "defs.h"
 #include "keyword.h"
 #include "lexer.h"
 #include "memory.h"

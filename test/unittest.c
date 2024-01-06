@@ -53,7 +53,7 @@ unittest("lexer") {
 	for (size_t index = 0; (token = lex(&lexer)).type != TOKEN_EOF;
 	     ++index) {
 		struct token expect_token = expected[index];
-		    ensure(expect_token.type == token.type),
+		ensure(expect_token.type == token.type),
 		    ensure(expect_token.ptr == token.ptr),
 		    ensure(expect_token.span == token.span);
 	}
@@ -71,20 +71,21 @@ unittest("parser") {
 	    {5, {'=', str + 25, 1}},
 	    {5, {'\'', str + 28, 1}},
 	    {0, {tokenof(KEYWORD_IF), str + 32, 2}},
-	    {9, {TOKEN_LABEL, str + 36, 3}},
-	    {9, {digraph('<'), str + 40, 2}},
-	    {11, {TOKEN_DECIMAL, str + 43, 2}},
+	    {9, {'(', str + 35, 1}},
+	    {10, {TOKEN_LABEL, str + 36, 3}},
+	    {10, {digraph('<'), str + 40, 2}},
+	    {12, {TOKEN_DECIMAL, str + 43, 2}},
 	    {9, {tokenof(KEYWORD_THEN), str + 47, 4}},
-	    {13, {TOKEN_LABEL, str + 52, 3}},
-	    {13, {'+', str + 56, 1}},
-	    {15, {'(', str + 58, 1}},
-	    {16, {TOKEN_LABEL, str + 59, 6}},
-	    {16, {'-', str + 66, 1}},
-	    {18, {'\'', str + 69, 1}},
-	    {18, {'*', str + 73, 1}},
-	    {20, {TOKEN_DECIMAL, str + 75, 1}},
+	    {14, {TOKEN_LABEL, str + 52, 3}},
+	    {14, {'+', str + 56, 1}},
+	    {16, {'(', str + 58, 1}},
+	    {17, {TOKEN_LABEL, str + 59, 6}},
+	    {17, {'-', str + 66, 1}},
+	    {19, {'\'', str + 69, 1}},
+	    {19, {'*', str + 73, 1}},
+	    {21, {TOKEN_DECIMAL, str + 75, 1}},
 	    {9, {tokenof(KEYWORD_ELSE), str + 77, 4}},
-	    {22, {TOKEN_DECIMAL, str + 82, 2}},
+	    {23, {TOKEN_DECIMAL, str + 82, 2}},
 	};
 
 	struct node node = {0};

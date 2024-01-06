@@ -1,8 +1,4 @@
 #include "parser.h"
-#include "keyword.h"
-#include "lexer.h"
-#include "macros.h"
-#include "memory.h"
 
 error_t load(struct parser * parser) {
 	struct token token = lex(&parser->lexer);
@@ -103,7 +99,7 @@ error_t parse_pseudo(struct parser * parser) {
 	or_return(derive(parser), error);
 	size_t parent = parser->parent;
 	or_return(expect(parser, '('), error);
-	or_return(load(parser), error);
+	or_return(derive(parser), error);
 	or_return(parse_expression(parser, 0), error);
 	or_return(expect(parser, ')'), error);
 	parser->parent = parent;
@@ -133,6 +129,7 @@ error_t parse_if(struct parser * parser) {
 		}
 	} else
 		return (error_t){ERROR_EXPECT};
+	parser->parent = parent;
 	return no_error;
 }
 

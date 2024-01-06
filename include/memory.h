@@ -1,7 +1,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#include "glyph.h"
+#include "defs.h"
 #include "macros.h"
 #include <stdlib.h>
 
