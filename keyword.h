@@ -10,6 +10,7 @@ enum keywords {
 	KEYWORD_LET,
 	KEYWORD_IF,
 	KEYWORD_ELSE,
+	KEYWORD_NONE,
 };
 
 struct string {
@@ -25,11 +26,5 @@ static struct string keywords[] = {
     [KEYWORD_IF] = string_literal("if"),
     [KEYWORD_ELSE] = string_literal("else"),
 };
-
-#define keyword(token, keyword) \
-	(((token).span == keywords[keyword].span) && \
-	 (strncmp((const char *) (token).ptr, \
-		  (const char *) keywords[keyword].ptr, \
-		  keywords[keyword].span) == 0))
 
 #endif // !KEYWORD_H

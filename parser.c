@@ -39,7 +39,7 @@ error_t parse_expression(struct parser * parser) {
 			load(parser);
 			break_case;
 		case '_':
-			if (keyword(parser->token, KEYWORD_ELSE))
+			if (parser->token.type == tokenof(KEYWORD_ELSE))
 				return no_error;
 			fallthrough;
 		default: commit(parser); break_case;
@@ -49,8 +49,7 @@ error_t parse_expression(struct parser * parser) {
 
 error_t parse_statement(struct parser * parser) {
 	error_t error = no_error;
-	if (keyword(parser->token, KEYWORD_LET)) {
-		parser->token.type = TOKEN_ASCII + KEYWORD_LET;
+	if (parser->token.type == tokenof(KEYWORD_LET)) {
 		commit(parser);
 		or_return(expect(parser, TOKEN_LABEL), error);
 		commit(parser);
@@ -76,8 +75,7 @@ error_t parse_if(struct parser * parser) {
 	} else
 		or_return(parse_expression(parser), error);
 
-	if (keyword(parser->token, KEYWORD_ELSE)) {
-		parser->token.type = TOKEN_ASCII + KEYWORD_ELSE;
+	if (parser->token.type == tokenof(KEYWORD_ELSE)) {
 		commit(parser);
 		if (parser->token.type == '{') {
 			or_return(parse_scope(parser), error);
@@ -93,15 +91,15 @@ error_t parse_scope(struct parser * parser) {
 	load(parser);
 	for (error_t error = no_error;;)
 		switch ((char8_t) parser->token.type) {
+		case tokenof(KEYWORD_LET):
+			or_return(parse_statement(parser), error);
+			break_case;
+		case tokenof(KEYWORD_IF):
+			commit(parser);
+			or_return(parse_if(parser), error);
+			break_case;
 		case TOKEN_LABEL:
-			if (keyword(parser->token, KEYWORD_LET)) {
-				or_return(parse_statement(parser), error);
-			} else if (keyword(parser->token, KEYWORD_IF)) {
-				parser->token.type = TOKEN_ASCII + KEYWORD_IF;
-				commit(parser);
-				or_return(parse_if(parser), error);
-			} else
-				or_return(parse_expression(parser), error);
+			or_return(parse_expression(parser), error);
 			break_case;
 		case '}': return no_error;
 		case TOKEN_EOF: return ERROR_EOF;

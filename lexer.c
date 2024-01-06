@@ -1,6 +1,19 @@
 #include "lexer.h"
 #include "glyph.h"
+#include "keyword.h"
 #include "macros.h"
+
+struct token reserved(struct token token) {
+	for (size_t key = 0; key != KEYWORD_NONE; ++key)
+		if ((token.span == keywords[key].span) &&
+		    (strncmp((const char *) token.ptr,
+			     (const char *) keywords[key].ptr,
+			     keywords[key].span) == 0)) {
+			token.type = tokenof(key);
+			return token;
+		}
+	return token;
+}
 
 struct token lex(struct lexer * lex) {
 	struct token ret = {0};
@@ -46,8 +59,9 @@ struct token lex(struct lexer * lex) {
 		case '_':
 			for (lex->ptr = it; (ch = *(++it)) && is_ident(ch);)
 				;
-			ret = (struct token){TOKEN_LABEL, lex->ptr,
-					     it - lex->ptr};
+
+			ret = reserved((struct token){TOKEN_LABEL, lex->ptr,
+						      it - lex->ptr});
 			lex->ptr = it;
 			return ret;
 

@@ -2,6 +2,7 @@
 #define LEXER_H
 
 #include "glyph.h"
+#include "keyword.h"
 
 enum token_type /* : char8_t */ {
 	TOKEN_EOF = 0x0,
@@ -15,6 +16,8 @@ enum token_type /* : char8_t */ {
 	TOKEN_UTF8 = UTF8_INIT,
 };
 
+#define tokenof(key) (TOKEN_ASCII + key)
+
 #define digraph(ch) (0xa0 | ((ch) & 0x1f))
 
 struct token {
@@ -26,6 +29,8 @@ struct token {
 struct lexer {
 	const char8_t * ptr;
 };
+
+struct token reserved(struct token token);
 
 struct token lex(struct lexer *);
 

@@ -18,17 +18,17 @@ static const char8_t * str =
 
 unittest("lexer") {
 	struct token expected[] = {
-	    {TOKEN_LABEL, str + 0, 3},
+	    {tokenof(KEYWORD_LET), str + 0, 3},
 	    {TOKEN_LABEL, str + 4, 3},
 	    {'=', str + 8, 1},
 	    {TOKEN_DECIMAL, str + 10, 2},
 	    {';', str + 12, 1},
-	    {TOKEN_LABEL, str + 14, 3},
+	    {tokenof(KEYWORD_LET), str + 14, 3},
 	    {TOKEN_LABEL, str + 18, 6},
 	    {'=', str + 25, 1},
 	    {'\'', str + 28, 1},
 	    {';', str + 30, 1},
-	    {TOKEN_LABEL, str + 32, 2},
+	    {tokenof(KEYWORD_IF), str + 32, 2},
 	    {'(', str + 35, 1},
 	    {TOKEN_LABEL, str + 36, 3},
 	    {digraph('<'), str + 40, 2},
@@ -43,7 +43,7 @@ unittest("lexer") {
 	    {')', str + 67, 1},
 	    {'*', str + 69, 1},
 	    {TOKEN_DECIMAL, str + 71, 1},
-	    {TOKEN_LABEL, str + 73, 4},
+	    {tokenof(KEYWORD_ELSE), str + 73, 4},
 	    {TOKEN_DECIMAL, str + 78, 2},
 	};
 
@@ -61,15 +61,15 @@ unittest("lexer") {
 unittest("parser") {
 
 	struct node expected[] = {
-	    {{TOKEN_ASCII + KEYWORD_LET, str + 0, 3}, 0},
+	    {{tokenof(KEYWORD_LET), str + 0, 3}, 0},
 	    {{TOKEN_LABEL, str + 4, 3}, 0},
 	    {{'=', str + 8, 1}, 0},
 	    {{TOKEN_DECIMAL, str + 10, 2}, 0},
-	    {{TOKEN_ASCII + KEYWORD_LET, str + 14, 3}, 0},
+	    {{tokenof(KEYWORD_LET), str + 14, 3}, 0},
 	    {{TOKEN_LABEL, str + 18, 6}, 0},
 	    {{'=', str + 25, 1}, 0},
 	    {{'\'', str + 28, 1}, 0},
-	    {{TOKEN_ASCII + KEYWORD_IF, str + 32, 2}, 0},
+	    {{tokenof(KEYWORD_IF), str + 32, 2}, 0},
 	    {{TOKEN_LABEL, str + 36, 3}, 0},
 	    {{digraph('<'), str + 40, 2}, 0},
 	    {{TOKEN_DECIMAL, str + 43, 2}, 0},
@@ -80,7 +80,7 @@ unittest("parser") {
 	    {{'\'', str + 65, 1}, 0},
 	    {{'*', str + 69, 1}, 0},
 	    {{TOKEN_DECIMAL, str + 71, 1}, 0},
-	    {{TOKEN_ASCII + KEYWORD_ELSE, str + 73, 4}, 0},
+	    {{tokenof(KEYWORD_ELSE), str + 73, 4}, 0},
 	    {{TOKEN_DECIMAL, str + 78, 2}, 0},
 	};
 
