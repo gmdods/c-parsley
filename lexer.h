@@ -10,7 +10,7 @@ enum token_type /* : char8_t */ {
 	TOKEN_COMMENT = '#',
 	TOKEN_DECIMAL = '0',
 	TOKEN_LABEL = '_',
-	TOKEN_ASCII = ASCII_LIMIT,
+	TOKEN_ASCII = ASCII_LIMIT + 1,
 
 	TOKEN_DIGRAPH = 0xa0,
 	TOKEN_UTF8 = UTF8_INIT,

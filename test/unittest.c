@@ -52,36 +52,37 @@ unittest("lexer") {
 	for (size_t index = 0; (token = lex(&lexer)).type != TOKEN_EOF;
 	     ++index) {
 		struct token expect_token = expected[index];
-		ensure((expect_token.type == token.type) &
-		       (expect_token.ptr == token.ptr) &
-		       (expect_token.span == token.span));
+		ensure(expect_token.type == token.type),
+		    ensure(expect_token.ptr == token.ptr),
+		    ensure(expect_token.span == token.span);
 	}
 }
 
 unittest("parser") {
 
 	struct node expected[] = {
-	    {{tokenof(KEYWORD_LET), str + 0, 3}, 0},
-	    {{TOKEN_LABEL, str + 4, 3}, 0},
-	    {{'=', str + 8, 1}, 0},
-	    {{TOKEN_DECIMAL, str + 10, 2}, 0},
-	    {{tokenof(KEYWORD_LET), str + 14, 3}, 0},
-	    {{TOKEN_LABEL, str + 18, 6}, 0},
-	    {{'=', str + 25, 1}, 0},
-	    {{'\'', str + 28, 1}, 0},
-	    {{tokenof(KEYWORD_IF), str + 32, 2}, 0},
-	    {{TOKEN_LABEL, str + 36, 3}, 0},
-	    {{digraph('<'), str + 40, 2}, 0},
-	    {{TOKEN_DECIMAL, str + 43, 2}, 0},
-	    {{TOKEN_LABEL, str + 48, 3}, 0},
-	    {{'+', str + 52, 1}, 0},
-	    {{TOKEN_LABEL, str + 55, 6}, 0},
-	    {{'-', str + 62, 1}, 0},
-	    {{'\'', str + 65, 1}, 0},
-	    {{'*', str + 69, 1}, 0},
-	    {{TOKEN_DECIMAL, str + 71, 1}, 0},
-	    {{tokenof(KEYWORD_ELSE), str + 73, 4}, 0},
-	    {{TOKEN_DECIMAL, str + 78, 2}, 0},
+	    {0, {tokenof(KEYWORD_LET), str + 0, 3}},
+	    {1, {TOKEN_LABEL, str + 4, 3}},
+	    {1, {'=', str + 8, 1}},
+	    {1, {TOKEN_DECIMAL, str + 10, 2}},
+	    {0, {tokenof(KEYWORD_LET), str + 14, 3}},
+	    {5, {TOKEN_LABEL, str + 18, 6}},
+	    {5, {'=', str + 25, 1}},
+	    {5, {'\'', str + 28, 1}},
+	    {0, {tokenof(KEYWORD_IF), str + 32, 2}},
+	    {9, {TOKEN_LABEL, str + 36, 3}},
+	    {9, {digraph('<'), str + 40, 2}},
+	    {11, {TOKEN_DECIMAL, str + 43, 2}},
+	    {9, {TOKEN_LABEL, str + 48, 3}},
+	    {9, {'+', str + 52, 1}},
+	    {14, {'(', str + 54, 1}},
+	    {15, {TOKEN_LABEL, str + 55, 6}},
+	    {15, {'-', str + 62, 1}},
+	    {17, {'\'', str + 65, 1}},
+	    {17, {'*', str + 69, 1}},
+	    {19, {TOKEN_DECIMAL, str + 71, 1}},
+	    {19, {tokenof(KEYWORD_ELSE), str + 73, 4}},
+	    {19, {TOKEN_DECIMAL, str + 78, 2}},
 	};
 
 	struct node node = {0};
@@ -92,12 +93,12 @@ unittest("parser") {
 
 	for (size_t index = 0; index != sizeof(expected) / sizeof(struct node);
 	     ++index) {
-		struct token token =
-		    ((struct node *) parser.arena.ptr)[index].token;
-		struct token expect_token = expected[index].token;
-		ensure((expect_token.type == token.type) &
-		       (expect_token.ptr == token.ptr) &
-		       (expect_token.span == token.span));
+		struct node node = ((struct node *) parser.arena.ptr)[index];
+		struct node expect = expected[index];
+		ensure(expect.token.type == node.token.type),
+		    ensure(expect.token.ptr == node.token.ptr),
+		    ensure(expect.token.span == node.token.span),
+		    ensure(expect.index == node.index);
 	}
 
 	dealloc(&parser.arena);
