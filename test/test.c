@@ -1,9 +1,8 @@
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "../lexer.h"
 #include "../macros.h"
+#include "../parser.h"
 
 #define UNITTEST_MAIN
 #include "unittest.h"

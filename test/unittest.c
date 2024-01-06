@@ -5,17 +5,18 @@
 
 #include "../lexer.h"
 #include "../macros.h"
+#include "../parser.h"
 
 #endif /* ifndef UNITTEST_MAIN */
 
-unittest("lexer") {
-	const char8_t * str =
-	    cast(const char8_t *, "let var = 30;\n"
-				  "let letter = 'a';\n"
-				  "if (var <= 32)\n"
-				  "\tvar + (letter - 'a') * 3\n"
-				  "else 30");
+static const char8_t * str =
+    cast(const char8_t *, "let num = 30;\n"
+			  "let letter = 'a';\n"
+			  "if (num <= 32)\n"
+			  "\tnum + (letter - 'a') * 3\n"
+			  "else 30");
 
+unittest("lexer") {
 	struct token expected[] = {
 	    {TOKEN_LABEL, str + 0, 3},
 	    {TOKEN_LABEL, str + 4, 3},
@@ -55,4 +56,49 @@ unittest("lexer") {
 		       (expect_token.ptr == token.ptr) &
 		       (expect_token.span == token.span));
 	}
+}
+
+unittest("parser") {
+
+	struct node expected[] = {
+	    {{TOKEN_ASCII + KEYWORD_LET, str + 0, 3}, 0},
+	    {{TOKEN_LABEL, str + 4, 3}, 0},
+	    {{'=', str + 8, 1}, 0},
+	    {{TOKEN_DECIMAL, str + 10, 2}, 0},
+	    {{TOKEN_ASCII + KEYWORD_LET, str + 14, 3}, 0},
+	    {{TOKEN_LABEL, str + 18, 6}, 0},
+	    {{'=', str + 25, 1}, 0},
+	    {{'\'', str + 28, 1}, 0},
+	    {{TOKEN_ASCII + KEYWORD_IF, str + 32, 2}, 0},
+	    {{TOKEN_LABEL, str + 36, 3}, 0},
+	    {{digraph('<'), str + 40, 2}, 0},
+	    {{TOKEN_DECIMAL, str + 43, 2}, 0},
+	    {{TOKEN_LABEL, str + 48, 3}, 0},
+	    {{'+', str + 52, 1}, 0},
+	    {{TOKEN_LABEL, str + 55, 6}, 0},
+	    {{'-', str + 62, 1}, 0},
+	    {{'\'', str + 65, 1}, 0},
+	    {{'*', str + 69, 1}, 0},
+	    {{TOKEN_DECIMAL, str + 71, 1}, 0},
+	    {{TOKEN_ASCII + KEYWORD_ELSE, str + 73, 4}, 0},
+	    {{TOKEN_DECIMAL, str + 78, 2}, 0},
+	};
+
+	struct node node = {0};
+	struct parser parser = {.lexer = (struct lexer){.ptr = str},
+				.arena = alloc(256U * sizeof(struct node))};
+	error_t error = parse(&parser);
+	ensure(error == ERROR_NONE || error == ERROR_EOF);
+
+	for (size_t index = 0; index != sizeof(expected) / sizeof(struct node);
+	     ++index) {
+		struct token token =
+		    ((struct node *) parser.arena.ptr)[index].token;
+		struct token expect_token = expected[index].token;
+		ensure((expect_token.type == token.type) &
+		       (expect_token.ptr == token.ptr) &
+		       (expect_token.span == token.span));
+	}
+
+	dealloc(&parser.arena);
 }
