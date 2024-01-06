@@ -23,7 +23,7 @@ typedef enum error /* : char8_t */ {
 	} while (0)
 
 struct node {
-	size_t index;
+	index_t index;
 	struct token token;
 };
 
@@ -31,8 +31,8 @@ struct parser {
 	struct lexer lexer;
 	struct token token;
 	struct arena arena;
-	size_t index;
-	size_t parent;
+	index_t index;
+	index_t parent;
 };
 
 error_t parse(struct parser *);

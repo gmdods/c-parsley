@@ -21,7 +21,7 @@ enum keywords {
 
 struct string {
 	const char8_t * ptr;
-	size_t span;
+	index_t span;
 };
 
 #define string_literal(str) \

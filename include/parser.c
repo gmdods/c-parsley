@@ -9,7 +9,7 @@ error_t load(struct parser * parser) {
 
 error_t commit(struct parser * parser) {
 	error_t error = no_error;
-	size_t index = parser->index++;
+	index_t index = parser->index++;
 	upalloc(&parser->arena, sizeof(struct node) * (1 + index));
 	if (!parser->arena.ptr) return (error_t){ERROR_ALLOC};
 	array_cast(struct node, parser->arena)[index] =
@@ -97,7 +97,7 @@ error_t parse_statement(struct parser * parser) {
 error_t parse_pseudo(struct parser * parser) {
 	error_t error = no_error;
 	or_return(derive(parser), error);
-	size_t parent = parser->parent;
+	index_t parent = parser->parent;
 	or_return(expect(parser, '('), error);
 	or_return(derive(parser), error);
 	or_return(parse_expression(parser, 0), error);
@@ -109,8 +109,8 @@ error_t parse_pseudo(struct parser * parser) {
 
 error_t parse_if(struct parser * parser) {
 	error_t error = no_error;
-	size_t parent = parser->parent;
-	size_t index = parser->index + 1;
+	index_t parent = parser->parent;
+	index_t index = parser->index + 1;
 	or_return(parse_pseudo(parser), error);
 	if (parser->token.type == '{') {
 		or_return(parse_scope(parser), error);
@@ -145,7 +145,7 @@ error_t parse_scope(struct parser * parser) {
 
 error_t parse_sequence(struct parser * parser) {
 	error_t error = no_error;
-	for (size_t parent = parser->index; (parser->parent = parent, 1);)
+	for (index_t parent = parser->index; (parser->parent = parent, 1);)
 		switch ((char8_t) parser->token.type) {
 		case tokenof(KEYWORD_WHILE):
 			or_return(parse_pseudo(parser), error);
