@@ -3,9 +3,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../lexer.h"
-#include "../macros.h"
-#include "../parser.h"
+#include "../include/lexer.h"
+#include "../include/macros.h"
+#include "../include/parser.h"
 
 #endif /* ifndef UNITTEST_MAIN */
 

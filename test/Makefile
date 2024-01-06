@@ -3,8 +3,10 @@ CFLAGS = -Wall -Wpedantic -Wextra \
 	 -Wno-unused-variable -Wno-unused-parameter -Wno-unused-function \
 	 -march=native -std=c11
 
-FILES =  ../lexer.c ../parser.c
-DEPS =  ../macros.h ../glyph.h ../keyword.h ../memory.h ../lexer.h ../parser.h unittest.c
+FILES = ../include/lexer.c ../include/parser.c
+DEPS  = ../include/macros.h ../include/glyph.h ../include/keyword.h \
+	../include/memory.h ../include/lexer.h ../include/parser.h \
+	unittest.c
 
 test: test.out
 .PHONY: test
@@ -15,10 +17,10 @@ test.out: test.c $(DEPS) $(FILES)
 asm: parser.S lexer.S
 .PHONY: asm
 
-lexer.S: ../lexer.c ../lexer.h
+lexer.S: ../include/lexer.c ../include/lexer.h
 	$(CC) $(CFLAGS) -O3 -S $< -o $@
 
-parser.S: ../parser.c ../parser.h
+parser.S: ../include/parser.c ../include/parser.h
 	$(CC) $(CFLAGS) -O3 -S $< -o $@
 
 clean:
