@@ -12,5 +12,14 @@ test: test.out
 test.out: test.c $(DEPS) $(FILES)
 	$(CC) $(CFLAGS) -Og -g $< $(FILES) -o $@ && ./$@
 
+asm: parser.S lexer.S
+.PHONY: asm
+
+lexer.S: ../lexer.c ../lexer.h
+	$(CC) $(CFLAGS) -O3 -S $< -o $@
+
+parser.S: ../parser.c ../parser.h
+	$(CC) $(CFLAGS) -O3 -S $< -o $@
+
 clean:
-	rm *.out
+	rm *.out *.S
