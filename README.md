@@ -1,5 +1,5 @@
-# goto-parser
-My go-to C-like semantic parser in C
+# parsley
+My go-to semantic parser in C
 
 ## Built upon
 
@@ -9,3 +9,4 @@ My go-to C-like semantic parser in C
 ## Influence
 
 - [Pratt-parser](https://en.wikipedia.org/wiki/Operator-precedence_parser)
+- [Co-dfns](https://github.com/Co-dfns/Co-dfns)
