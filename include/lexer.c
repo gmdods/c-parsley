@@ -65,7 +65,7 @@ struct token lex(struct lexer * lex) {
 			lex->ptr = it;
 			return ret;
 
-		case '<' or_ case '=' or_ case '>':
+		case '<' or_ case '=' or_ case '>' or_ case '!':
 			if (it[1] == '=') {
 				ret = (struct token){digraph(ch), it, 2};
 				lex->ptr = (it += 2);
@@ -76,9 +76,10 @@ struct token lex(struct lexer * lex) {
 		// For compound assignment move up
 		case '+' or_ case '-':
 		case '/' or_ case '%':
-		case '*' or_ case '!':
+		case '*' or_ case '^':
 		case '&' or_ case '|':
-		case '^' or_ case '~':
+		case '~':
+
 
 		case '[' or_ case '{' or_ case '(':
 		case ']' or_ case '}' or_ case ')':
