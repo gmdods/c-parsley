@@ -24,4 +24,7 @@ parser.S: ../include/parser.c ../include/parser.h
 	$(CC) $(CFLAGS) -O3 -S $< -o $@
 
 clean:
-	rm *.out *.S
+	rm *.out
+
+tidy:
+	rm *.S

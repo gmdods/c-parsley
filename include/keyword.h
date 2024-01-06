@@ -1,10 +1,9 @@
 #ifndef KEYWORD_H
 #define KEYWORD_H
 
-#include <string.h>
-
 #include "glyph.h"
 #include "macros.h"
+#include <string.h>
 
 enum keywords {
 	KEYWORD_LET,
