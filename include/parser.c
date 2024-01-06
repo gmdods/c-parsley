@@ -12,24 +12,24 @@ enum token_type load(struct parser * parser) {
 
 error_t commit(struct parser * parser) {
 	size_t index = parser->index++;
-	if (parser->arena.bytes < sizeof(struct node) * (1 + index)) {
-		upalloc(&parser->arena, 2 * parser->arena.bytes);
-	}
+	upalloc(&parser->arena, sizeof(struct node) * (1 + index));
 	if (!parser->arena.ptr) return (error_t){ERROR_ALLOC};
-	((struct node *) parser->arena.ptr)[index] =
+	array_cast(struct node, parser->arena)[index] =
 	    (struct node){parser->parent, parser->token};
 	load(parser);
 	return no_error;
 }
 
+error_t derive(struct parser * parser) {
+	error_t error = no_error;
+	or_return(commit(parser), error);
+	parser->parent = parser->index;
+	return error;
+}
+
 error_t expect(struct parser * parser, char8_t expected) {
 	if (parser->token.type != expected) return (error_t){ERROR_EXPECT};
 	return no_error;
-}
-
-size_t establish(struct parser * parser) {
-	commit(parser);
-	return parser->parent = parser->index;
 }
 
 error_t parse_expression(struct parser * parser, char8_t precedence) {
@@ -39,7 +39,7 @@ error_t parse_expression(struct parser * parser, char8_t precedence) {
 		case ']' or_ case '}' or_ case ')' or_ case ';':
 			return no_error;
 		case '(':
-			establish(parser);
+			or_return(derive(parser), error);
 			or_return(parse_expression(parser, 0), error);
 			if (parser->token.type != ')') return no_error;
 			load(parser);
@@ -63,7 +63,7 @@ error_t parse_expression(struct parser * parser, char8_t precedence) {
 		case '=':
 			level += 1;
 			if (precedence >= level) return no_error;
-			establish(parser);
+			or_return(derive(parser), error);
 			or_return(parse_expression(parser, level), error);
 			break_case;
 
@@ -71,7 +71,7 @@ error_t parse_expression(struct parser * parser, char8_t precedence) {
 			if (parser->token.type == tokenof(KEYWORD_ELSE))
 				return no_error;
 			fallthrough;
-		default: commit(parser); break_case;
+		default: or_return(commit(parser), error); break_case;
 		case TOKEN_EOF: return ERROR_EOF;
 		}
 }
@@ -79,11 +79,12 @@ error_t parse_expression(struct parser * parser, char8_t precedence) {
 error_t parse_statement(struct parser * parser) {
 	error_t error = no_error;
 	if (parser->token.type == tokenof(KEYWORD_LET)) {
-		size_t parent = establish(parser);
+		or_return(derive(parser), error);
+		size_t parent = parser->parent;
 		or_return(expect(parser, TOKEN_LABEL), error);
-		commit(parser);
+		or_return(commit(parser), error);
 		or_return(expect(parser, '='), error);
-		commit(parser);
+		or_return(commit(parser), error);
 	}
 	or_return(parse_expression(parser, 0), error);
 	or_return(expect(parser, ';'), error);
@@ -93,14 +94,15 @@ error_t parse_statement(struct parser * parser) {
 
 error_t parse_if(struct parser * parser) {
 	error_t error = no_error;
-	size_t parent = establish(parser);
+	or_return(derive(parser), error);
+	size_t parent = parser->parent;
 	or_return(expect(parser, '('), error);
 	load(parser);
 	or_return(parse_expression(parser, 0), error);
 	or_return(expect(parser, ')'), error);
 	parser->parent = parent;
 	if (load(parser) == '{') {
-		establish(parser);
+		or_return(derive(parser), error);
 		or_return(parse_scope(parser), error);
 		or_return(expect(parser, '}'), error);
 		load(parser);
@@ -108,9 +110,9 @@ error_t parse_if(struct parser * parser) {
 		or_return(parse_expression(parser, 0), error);
 
 	if (parser->token.type == tokenof(KEYWORD_ELSE)) {
-		establish(parser);
+		or_return(derive(parser), error);
 		if (parser->token.type == '{') {
-			establish(parser);
+			or_return(derive(parser), error);
 			or_return(parse_scope(parser), error);
 			or_return(expect(parser, '}'), error);
 			load(parser);

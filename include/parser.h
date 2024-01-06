@@ -37,6 +37,10 @@ struct parser {
 
 error_t parse(struct parser *);
 
+enum token_type load(struct parser *);
+error_t commit(struct parser *);
+error_t derive(struct parser *);
+
 error_t parse_scope(struct parser *);
 error_t parse_expression(struct parser *, char8_t);
 error_t parse_statement(struct parser *);
