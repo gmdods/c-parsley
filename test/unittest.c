@@ -82,7 +82,7 @@ unittest("parser") {
 	    {17, {TOKEN_LABEL, str + 59, 6}},
 	    {17, {'-', str + 66, 1}},
 	    {19, {'\'', str + 69, 1}},
-	    {19, {'*', str + 73, 1}},
+	    {17, {'*', str + 73, 1}},
 	    {21, {TOKEN_DECIMAL, str + 75, 1}},
 	    {9, {tokenof(KEYWORD_ELSE), str + 77, 4}},
 	    {23, {TOKEN_DECIMAL, str + 82, 2}},
