@@ -10,6 +10,7 @@ enum token_type /* : char8_t */ {
 	TOKEN_DECIMAL = '0',
 	TOKEN_LABEL = '_',
 	TOKEN_ASCII = ASCII_LIMIT,
+
 	TOKEN_DIGRAPH = 0xa0,
 	TOKEN_UTF8 = UTF8_INIT,
 };
@@ -17,7 +18,7 @@ enum token_type /* : char8_t */ {
 #define digraph(ch) (0xa0 | ((ch) & 0x1f))
 
 struct token {
-	char8_t type;
+	char8_t /* enum token */ type;
 	const char8_t * ptr;
 	size_t span;
 };
