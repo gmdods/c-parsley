@@ -22,15 +22,16 @@ enum token_type /* : char8_t */ {
 
 struct token {
 	char8_t /* enum token */ type;
-	const char8_t * ptr;
+	index_t init;
 	index_t span;
 };
 
 struct lexer {
 	const char8_t * ptr;
+	index_t pos;
 };
 
-struct token reserved(struct token token);
+struct token reserved(struct token, const char8_t *);
 
 struct token lex(struct lexer *);
 

@@ -1,9 +1,9 @@
 #include "lexer.h"
 
-struct token reserved(struct token token) {
+struct token reserved(struct token token, const char8_t * ptr) {
 	for (size_t key = 0; key != KEYWORD_NONE; ++key)
 		if ((token.span == keywords[key].span) &&
-		    (strncmp((const char *) token.ptr,
+		    (strncmp((const char *) ptr + token.init,
 			     (const char *) keywords[key].ptr,
 			     keywords[key].span) == 0)) {
 			token.type = tokenof(key);
@@ -15,30 +15,31 @@ struct token reserved(struct token token) {
 struct token lex(struct lexer * lex) {
 	struct token ret = {0};
 	char8_t ch = '\0', quote = '\0';
-	for (const char8_t * it = lex->ptr;;)
-		switch (ch = *it) {
+	for (index_t it = lex->pos;;)
+		switch (ch = lex->ptr[it]) {
 		case TOKEN_COMMENT:
-			while ((ch = *(++it)) && (ch != '\n'))
+			while ((ch = lex->ptr[++it]) && (ch != '\n'))
 				;
 			fallthrough;
 		case ' ' or_ case '\t' or_ case '\r' or_ case '\n':
 			++it;
 			break_case;
 		case '"' or_ case '\'' or_ case '`':
-			for (lex->ptr = ++it, quote = ch;
-			     (ch = *it) && (ch != quote); ++it)
+			for (lex->pos = ++it, quote = ch;
+			     (ch = lex->ptr[it]) && (ch != quote); ++it)
 				;
-			ret = (struct token){quote, lex->ptr, it - lex->ptr};
-			lex->ptr = ++it;
+			ret = (struct token){quote, lex->pos, it - lex->pos};
+			lex->pos = ++it;
 			return ret;
 
 		case '0' or_ case '1' or_ case '2' or_ case '3' or_ case '4':
 		case '5' or_ case '6' or_ case '7' or_ case '8' or_ case '9':
-			for (lex->ptr = it; (ch = *(++it)) && is_digit(ch);)
+			for (lex->pos = it;
+			     (ch = lex->ptr[++it]) && is_digit(ch);)
 				;
-			ret = (struct token){TOKEN_DECIMAL, lex->ptr,
-					     it - lex->ptr};
-			lex->ptr = it;
+			ret = (struct token){TOKEN_DECIMAL, lex->pos,
+					     it - lex->pos};
+			lex->pos = it;
 			return ret;
 
 		case 'a' or_ case 'b' or_ case 'c' or_ case 'd' or_ case 'e':
@@ -54,18 +55,20 @@ struct token lex(struct lexer * lex) {
 		case 'R' or_ case 'S' or_ case 'T' or_ case 'U' or_ case 'V':
 		case 'W' or_ case 'X' or_ case 'Y' or_ case 'Z':
 		case '_':
-			for (lex->ptr = it; (ch = *(++it)) && is_ident(ch);)
+			for (lex->pos = it;
+			     (ch = lex->ptr[++it]) && is_ident(ch);)
 				;
 
-			ret = reserved((struct token){TOKEN_LABEL, lex->ptr,
-						      it - lex->ptr});
-			lex->ptr = it;
+			ret = reserved((struct token){TOKEN_LABEL, lex->pos,
+						      it - lex->pos},
+				       lex->ptr);
+			lex->pos = it;
 			return ret;
 
 		case '<' or_ case '=' or_ case '>' or_ case '!':
-			if (it[1] == '=') {
+			if (lex->ptr[it + 1] == '=') {
 				ret = (struct token){digraph(ch), it, 2};
-				lex->ptr = (it += 2);
+				lex->pos = (it += 2);
 				return ret;
 			}
 			fallthrough;
@@ -81,16 +84,16 @@ struct token lex(struct lexer * lex) {
 		case ']' or_ case '}' or_ case ')':
 		case ':' or_ case '.' or_ case ';' or_ case ',':
 			ret = (struct token){ch, it, 1};
-			lex->ptr = ++it;
+			lex->pos = ++it;
 			return ret;
 
 		case '\0':
 			ret = (struct token){TOKEN_EOF, it, 1};
-			lex->ptr = it;
+			lex->pos = it;
 			return ret;
 		default:
 			ret = (struct token){TOKEN_BAD, it, 1};
-			lex->ptr = it;
+			lex->pos = it;
 			return ret;
 		}
 }
