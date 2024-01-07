@@ -1,4 +1,4 @@
-# parsley
+# c-parsley
 My go-to semantic parser in C
 
 The syntax implement is between C and ML, it should easy to edit for any.

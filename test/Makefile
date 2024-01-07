@@ -18,10 +18,10 @@ asm: parser.S lexer.S
 .PHONY: asm
 
 lexer.S: ../include/lexer.c ../include/lexer.h
-	$(CC) $(CFLAGS) -O3 -S $< -o $@
+	$(CC) $(CFLAGS) -O3 -S -masm=intel $< -o $@
 
 parser.S: ../include/parser.c ../include/parser.h
-	$(CC) $(CFLAGS) -O3 -S $< -o $@
+	$(CC) $(CFLAGS) -O3 -S -masm=intel $< -o $@
 
 clean:
 	rm *.out
