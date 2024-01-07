@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "lexer.h"
 #include "macros.h"
 
 error_t load(struct parser * parser) {
@@ -32,17 +33,37 @@ error_t expect(struct parser * parser, char8_t expected) {
 }
 
 error_t parse_expression(struct parser * parser, char8_t precedence) {
-	char8_t level = 0;
+	error_t error = no_error;
 	index_t parent = parser->parent;
-	for (error_t error = no_error; (level = 0, 1);)
+
+	switch ((char8_t) parser->token.type) {
+	case '(':
+		or_return(derive(parser), error);
+		or_return(parse_expression(parser, 0), error);
+		or_return(expect(parser, ')'), error);
+		or_return(load(parser), error);
+		break_case;
+
+	case '+' or_ case '-':					    // Sign
+	case '!' or_ case '~':					    // Nots
+	case '&' or_ case '*':					    // Address
+	case '\'' or_ case '"' or_ case '`' or_ case TOKEN_DECIMAL: // Literals
+	case TOKEN_LABEL: or_return(commit(parser), error); break_case;
+
+	default: return (error_t){ERROR_EXPECT};
+	case TOKEN_EOF: return ERROR_EOF;
+	}
+
+	for (char8_t level = 0; (level = 0, 1);)
 		switch ((char8_t) parser->token.type) {
 		case '(':
 			or_return(derive(parser), error);
-			or_return(parse_expression(parser, 0), error);
+			do {
+				or_return(parse_expression(parser, 0), error);
+			} while (parser->token.type == ',');
 			or_return(expect(parser, ')'), error);
 			or_return(load(parser), error);
 			break_case;
-		case '!' or_ case '~': level += 1; fallthrough;
 
 		case '*':
 		case '/' or_ case '%': level += 1; fallthrough;
@@ -70,11 +91,12 @@ error_t parse_expression(struct parser * parser, char8_t precedence) {
 
 		case tokenof(KEYWORD_THEN):
 		case tokenof(KEYWORD_ELSE):
-		case ']' or_ case '}' or_ case ')' or_ case ';':
-			parser->parent = parent;
-			return no_error;
+		case ']' or_ case '}' or_ case ')':
+		case ';' or_ case ',': parser->parent = parent; return no_error;
 
-		case '_':
+		case '!' or_ case '~': return (error_t){ERROR_EXPECT};
+
+		case TOKEN_LABEL:
 		default: or_return(commit(parser), error); break_case;
 		case TOKEN_EOF: return ERROR_EOF;
 		}
@@ -134,7 +156,7 @@ error_t parse_if(struct parser * parser) {
 		parser->parent = index;
 		if (parser->token.type == tokenof(KEYWORD_ELSE)) {
 			or_return(derive(parser), error);
-			return parse_expression(parser, 0);
+			or_return(parse_expression(parser, 0), error);
 		}
 	} else
 		return (error_t){ERROR_EXPECT};
